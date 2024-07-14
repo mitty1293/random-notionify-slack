@@ -27,6 +27,22 @@ const getNotionPages = async () => {
 };
 
 /**
+ * Extracts content from a single Notion property.
+ * @param {Object} property - The property object from a Notion page.
+ * @returns {string} - Extracted content as a string.
+ */
+const extractContent = (property) => {
+    let content = '';
+
+    if (property.type === 'title' || property.type === 'rich_text') {
+        content = property[property.type].map(textObj => textObj.text.content).join(' ');
+    } else if (property.type === 'multi_select') {
+        content = property.multi_select.map(selectObj => selectObj.name).join(', ');
+    }
+    return content;
+};
+
+/**
  * Sends a notification message to Slack.
  * @param {string} message - The message to send to Slack.
  * @returns {Promise<void>}
@@ -52,9 +68,16 @@ const pickRandomPage = async () => {
     if (pages.length > 0) {
         const randomPage = pages[Math.floor(Math.random() * pages.length)];
         console.dir(randomPage, { depth: null });
-        const pageTitle = randomPage.properties.Spelling.title[0].plain_text;
+
+        let pageContent = '';
+        Object.entries(randomPage.properties).forEach(([key, property]) => {
+            const content = extractContent(property);
+            if (content) {
+                pageContent += `${key}: ${content}\n`
+            }
+        });
         const pageUrl = randomPage.url;
-        const message = `Check out this Notion page:\n${pageTitle}\n${pageUrl}`;
+        const message = `Check out this Notion page:\n${pageContent}\n${pageUrl}`;
         await sendSlackNotification(message);
     } else {
         console.log('No pages found in Notion database');

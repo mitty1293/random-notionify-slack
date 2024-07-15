@@ -1,0 +1,4 @@
+services:
+  random-notionify-slack:
+    build:
+      context: .

@@ -30,6 +30,22 @@ const getNotionPages = async (databaseId) => {
 };
 
 /**
+ * Retrieves the name of the specified Notion database.
+ * @param {string} databaseId - The ID of the Notion database.
+ * @returns {Promise<string>} - A promise that resolves to the name of the Notion database.
+ */
+const getDatabaseName = async (databaseId) => {
+    try {
+        const response = await notion.databases.retrieve({ database_id: databaseId });
+        return response.title[0].text.content;
+    } catch (error) {
+        console.error(`Error retrieving database name for ${databaseId}`);
+        console.error(error);
+        return 'Unknown Database';
+    }
+};
+
+/**
  * Extracts content from a single Notion property.
  * @param {Object} property - The property object from a Notion page.
  * @returns {string} - Extracted content as a string.
@@ -68,6 +84,7 @@ const sendSlackNotification = async (message) => {
  */
 const pickRandomPage = async () => {
     for (const databaseId of databaseIds) {
+        const databaseName = await getDatabaseName(databaseId);
         const pages = await getNotionPages(databaseId);
         if (pages.length > 0) {
             const randomPage = pages[Math.floor(Math.random() * pages.length)];
@@ -82,10 +99,10 @@ const pickRandomPage = async () => {
             });
 
             const pageUrl = randomPage.url;
-            const message = `${pageContent}\n${pageUrl}`;
+            const message = `${databaseName}\n${pageContent}\n${pageUrl}`;
             await sendSlackNotification(message);
         } else {
-            console.log('No pages found in Notion database');
+            console.log('No pages found in Notion database ${databaseName}');
         }
     }
 };

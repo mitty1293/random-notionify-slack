@@ -1,5 +1,6 @@
 const { Client } = require('@notionhq/client');
 const { WebClient } = require('@slack/web-api');
+const cron = require('node-cron');
 const fs = require('fs');
 const generateSlackBlocks = require('./blocks');
 
@@ -114,6 +115,7 @@ const pickRandomPage = async () => {
     }
 };
 
-(async () => {
-    await pickRandomPage();
-})();
+// Schedule the task to run every day at 9 AM
+cron.schedule('0 9 * * *', () => {
+    pickRandomPage();
+});

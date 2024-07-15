@@ -1,6 +1,7 @@
 const { Client } = require('@notionhq/client');
 const { WebClient } = require('@slack/web-api');
 const fs = require('fs');
+const generateSlackBlocks = require('./blocks');
 
 // Load configuration from JSON file
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
@@ -62,15 +63,16 @@ const extractContent = (property) => {
 };
 
 /**
- * Sends a notification message to Slack.
- * @param {string} message - The message to send to Slack.
+ * Sends a notification message to Slack using Block Kit.
+ * @param {Object} blocks - The blocks to send to Slack.
  * @returns {Promise<void>}
  */
-const sendSlackNotification = async (message) => {
+const sendSlackNotification = async (blocks) => {
     try {
         await slackClient.chat.postMessage({
             channel: slackChannel,
-            text: message,
+            blocks: blocks,
+            text: "sendSlackNotification"
         });
     } catch (error) {
         console.error('Error sending message');
@@ -89,20 +91,25 @@ const pickRandomPage = async () => {
         if (pages.length > 0) {
             const randomPage = pages[Math.floor(Math.random() * pages.length)];
             console.dir(randomPage, { depth: null });
+            let titleContent = '';
+            const contentArray = [];
 
-            let pageContent = '';
             Object.entries(randomPage.properties).forEach(([key, property]) => {
                 const content = extractContent(property);
                 if (content) {
-                    pageContent += `${key}: ${content}\n`
+                    if (property.type === 'title') {
+                        titleContent = content;
+                    } else {
+                        contentArray.push([key, content]);
+                    }
                 }
             });
 
             const pageUrl = randomPage.url;
-            const message = `${databaseName}\n${pageContent}\n${pageUrl}`;
-            await sendSlackNotification(message);
+            const blocks = generateSlackBlocks(databaseName, titleContent, contentArray, pageUrl);
+            await sendSlackNotification(blocks);
         } else {
-            console.log('No pages found in Notion database ${databaseName}');
+            console.log(`No pages found in Notion database ${databaseName}`);
         }
     }
 };

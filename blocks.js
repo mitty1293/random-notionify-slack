@@ -12,40 +12,41 @@ const generateSlackBlocks = (databaseName, titleContent, contentArray, pageUrl) 
             type: 'section',
             text: {
                 type: 'mrkdwn',
-                text: `*${key}*`,
+                text: `*${key}*\n${content}`,
             },
         },
-        {
-            type: 'section',
-            text: {
-                type: 'mrkdwn',
-                text: content,
-            },
-        }
     ]));
 
     return [
         {
-            type: 'section',
-            text: {
-                type: 'mrkdwn',
-                text: `*${databaseName}*`,
-            },
-        },
-        {
-            type: 'section',
-            text: {
-                type: 'mrkdwn',
-                text: `*${titleContent}*`,
-            },
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": `${titleContent}`,
+                "emoji": true
+            }
         },
         ...contentBlocks,
         {
-            type: 'section',
-            text: {
-                type: 'mrkdwn',
-                text: `<${pageUrl}|View in Notion>`,
-            },
+            "type": "divider"
+        },
+        {
+            type: 'context',
+            elements: [
+                {
+                    type: 'mrkdwn',
+                    text: `:books: Database: ${databaseName}`,
+                }
+            ]
+        },
+        {
+            type: 'context',
+            elements: [
+                {
+                    type: 'mrkdwn',
+                    text: `:link: <${pageUrl}|View in Notion>`,
+                },
+            ]
         },
     ];
 };

@@ -1,26 +1,29 @@
 const { Client } = require('@notionhq/client');
 const { WebClient } = require('@slack/web-api');
-require('dotenv').config();
+const fs = require('fs');
+
+// Load configuration from JSON file
+const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 // Notion API setup
-const notion = new Client({ auth: process.env.NOTION_API_KEY });
-const databaseId = process.env.NOTION_DATABASE_ID;
+const notion = new Client({ auth: config.notion.apiKey });
+const databaseIds = config.notion.databaseIds;
 
 // Slack API setup
-const slackBotToken = process.env.SLACK_BOT_TOKEN;
-const slackChannel = process.env.SLACK_CHANNEL;
-const slackClient = new WebClient(slackBotToken);
+const slackClient = new WebClient(config.slack.botToken);
+const slackChannel = config.slack.channel;
 
 /**
- * Fetches pages from the Notion database.
+ * Fetches pages from the specified Notion database.
+ * @param {string} databaseId - The ID of the Notion database.
  * @returns {Promise<Array>} - A promise that resolves to an array of Notion pages.
  */
-const getNotionPages = async () => {
+const getNotionPages = async (databaseId) => {
     try {
         const response = await notion.databases.query({ database_id: databaseId });
         return response.results;
     } catch (error) {
-        console.error('Error fetching Notion pages');
+        console.error(`Error fetching Notion pages from database: ${databaseId}`);
         console.error(error);
         return [];
     }
@@ -60,27 +63,30 @@ const sendSlackNotification = async (message) => {
 };
 
 /**
- * Picks a random page from Notion and sends its details to Slack.
+ * Picks a random page from each specified Notion database and sends their details to Slack.
  * @returns {Promise<void>}
  */
 const pickRandomPage = async () => {
-    const pages = await getNotionPages();
-    if (pages.length > 0) {
-        const randomPage = pages[Math.floor(Math.random() * pages.length)];
-        console.dir(randomPage, { depth: null });
+    for (const databaseId of databaseIds) {
+        const pages = await getNotionPages(databaseId);
+        if (pages.length > 0) {
+            const randomPage = pages[Math.floor(Math.random() * pages.length)];
+            console.dir(randomPage, { depth: null });
 
-        let pageContent = '';
-        Object.entries(randomPage.properties).forEach(([key, property]) => {
-            const content = extractContent(property);
-            if (content) {
-                pageContent += `${key}: ${content}\n`
-            }
-        });
-        const pageUrl = randomPage.url;
-        const message = `Check out this Notion page:\n${pageContent}\n${pageUrl}`;
-        await sendSlackNotification(message);
-    } else {
-        console.log('No pages found in Notion database');
+            let pageContent = '';
+            Object.entries(randomPage.properties).forEach(([key, property]) => {
+                const content = extractContent(property);
+                if (content) {
+                    pageContent += `${key}: ${content}\n`
+                }
+            });
+
+            const pageUrl = randomPage.url;
+            const message = `${pageContent}\n${pageUrl}`;
+            await sendSlackNotification(message);
+        } else {
+            console.log('No pages found in Notion database');
+        }
     }
 };
 

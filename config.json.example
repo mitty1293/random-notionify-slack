@@ -1,0 +1,13 @@
+{
+  "notion": {
+    "apiKey": "your_notion_api_key",
+    "databaseIds": [
+      "your_database_id_A",
+      "your_database_id_B"
+    ]
+  },
+  "slack": {
+    "botToken": "your_slack_bot_token",
+    "channel": "your_channel"
+  }
+}

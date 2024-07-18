@@ -115,7 +115,7 @@ const pickRandomPage = async () => {
     }
 };
 
-// Schedule the task to run every day at 9 AM
-cron.schedule('0 9 * * *', () => {
+// Schedule the task to run every day at 8 AM
+cron.schedule('0 8 * * *', () => {
     pickRandomPage();
 });

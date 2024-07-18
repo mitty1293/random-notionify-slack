@@ -5,7 +5,7 @@ const fs = require('fs');
 const generateSlackBlocks = require('./blocks');
 
 // Load configuration from JSON file
-const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+const config = JSON.parse(fs.readFileSync('src/config.json', 'utf8'));
 
 // Notion API setup
 const notion = new Client({ auth: config.notion.apiKey });
@@ -115,7 +115,7 @@ const pickRandomPage = async () => {
     }
 };
 
-// Schedule the task to run every day at 9 AM
-cron.schedule('0 9 * * *', () => {
+// Schedule the task to run every day at 8 AM
+cron.schedule('0 8 * * *', () => {
     pickRandomPage();
 });

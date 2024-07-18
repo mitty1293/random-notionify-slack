@@ -30,11 +30,13 @@ cd random-notionify-slack
   "slack": {
     "botToken": "your_slack_bot_token",
     "channel": "your_channel"
-  }
+  },
+  "schedule": "0 8 * * *"
 }
 ```
 
-Replace `your_notion_api_key`, `your_database_id_A`, `your_database_id_B`, `your_slack_bot_token`, and `your_channel` with your actual Notion API key, database IDs, Slack bot token, and Slack channel.
+Replace `your_notion_api_key`, `your_database_id_A`, `your_database_id_B`, `your_slack_bot_token`, and `your_channel` with your actual Notion API key, database IDs, Slack bot token, and Slack channel.  
+The schedule field specifies the cron schedule.
 
 ## Usage
 
@@ -52,7 +54,7 @@ npm install
 node src/index.js
 ```
 
-This will start the application and schedule the task to run every day at 9 AM. You can modify the schedule by changing the cron schedule expression in `src/index.js`.
+This will start the application and schedule the task according to the cron schedule specified in `src/config.json`.
 
 ### Running with Docker
 
@@ -62,13 +64,13 @@ This will start the application and schedule the task to run every day at 9 AM. 
 docker compose up --build -d
 ```
 
-This will start the application and schedule the task to run every day at 9 AM. You can modify the schedule by changing the cron schedule expression in `src/index.js`.
+This will start the application and schedule the task according to the cron schedule specified in `src/config.json`.
 
 ## Project Structure
 
 - `src/index.js`: Main script that handles Notion page selection and Slack notification.
 - `src/blocks.js`: Contains the function to generate Slack message blocks.
-- `src/config.json`: Configuration file containing Notion API key, database IDs, and Slack bot token.
+- `src/config.json`: Configuration file containing Notion API key, database IDs, Slack bot token, and the cron schedule.
 
 ## License
 

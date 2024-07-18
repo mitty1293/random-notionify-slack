@@ -9,5 +9,6 @@
   "slack": {
     "botToken": "your_slack_bot_token",
     "channel": "your_channel"
-  }
+  },
+  "schedule": "0 8 * * *"
 }

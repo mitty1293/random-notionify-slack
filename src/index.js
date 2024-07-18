@@ -15,6 +15,9 @@ const databaseIds = config.notion.databaseIds;
 const slackClient = new WebClient(config.slack.botToken);
 const slackChannel = config.slack.channel;
 
+// Read the cron schedule from config
+const cronSchedule = config.schedule;
+
 /**
  * Fetches pages from the specified Notion database.
  * @param {string} databaseId - The ID of the Notion database.
@@ -115,7 +118,7 @@ const pickRandomPage = async () => {
     }
 };
 
-// Schedule the task to run every day at 8 AM
-cron.schedule('0 8 * * *', () => {
+// Schedule the task to run according to the cron schedule from config
+cron.schedule(cronSchedule, () => {
     pickRandomPage();
 });

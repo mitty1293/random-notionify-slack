@@ -1,10 +1,12 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_VERSION=20.15.1
+ARG NODE_VERSION=22.4.1
 
-FROM node:${NODE_VERSION}-alpine
+FROM node:${NODE_VERSION}
 
 WORKDIR /opt/random-notionify-slack
+
+ENV TZ=Asia/Tokyo
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.npm to speed up subsequent builds.
